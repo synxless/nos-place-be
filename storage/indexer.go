@@ -27,6 +27,8 @@ func (s *Storage) UpdateIndexerState(ctx context.Context, state *models.IndexerS
 		"$set": bson.M{
 			"last_indexed_block": state.LastIndexedBlock,
 			"last_indexed_at":    state.LastIndexedAt,
+			"canvas_height":      state.CanvasHeight,
+			"canvas_width":       state.CanvasWidth,
 		},
 	}
 

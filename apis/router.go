@@ -34,11 +34,13 @@ func (rt *Router) Start() error {
 	r.Use(cors.Default())
 
 	r.Use(gzip.Gzip(gzip.DefaultCompression))
-
+	go rt.preloadCanvas()
 	apiv1 := r.Group("/api/v1")
 	_ = cacheStore
 	_ = apiv1
 	apiv1.GET("/pixels", cache.CacheByRequestURI(cacheStore, 1*time.Second), rt.GetPixels)
+	apiv1.GET("/pixels-cached", cache.CacheByRequestURI(cacheStore, 1*time.Second), rt.GetPixelsCached)
+
 	apiv1.GET("/latest", cache.CacheByRequestURI(cacheStore, 1*time.Second), rt.GetLatest)
 	// apiv1.GET("/tokens", cache.CacheByRequestURI(cacheStore, 10*time.Second), rt.GetTokens)
 	// apiv1.GET("/token/:address", cache.CacheByRequestURI(cacheStore, 10*time.Second), rt.GetToken)

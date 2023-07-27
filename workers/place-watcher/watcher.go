@@ -68,7 +68,32 @@ func (indexer *PlaceIndexer) Start() {
 		blockTime := time.Unix(int64(block.Header().Time), 0)
 
 		contractAddress := common.HexToAddress("0x3D751fCA34a5da4d04D2FA5932439aC7199ceaF8")
+
 		placeContract, err := abi.NewPlace(contractAddress, evmClient)
+		if err != nil {
+			fmt.Println("Failed to get contract: ", err)
+			continue
+		}
+		leftBound, err := placeContract.LeftBound(nil)
+		if err != nil {
+			fmt.Println("Failed to get left bound: ", err)
+			continue
+		}
+		upperBound, err := placeContract.UpperBound(nil)
+		if err != nil {
+			fmt.Println("Failed to get upper bound: ", err)
+			continue
+		}
+		canvasHeight, err := placeContract.GetHeight(nil)
+		if err != nil {
+			fmt.Println("Failed to get canvas height: ", err)
+			continue
+		}
+		canvasWidth, err := placeContract.GetWidth(nil)
+		if err != nil {
+			fmt.Println("Failed to get canvas width: ", err)
+			continue
+		}
 
 		fmt.Println("Block time: ", blockTime)
 		extractor := func(from, to uint64) error {
@@ -111,6 +136,11 @@ func (indexer *PlaceIndexer) Start() {
 		}
 
 		state.LastIndexedBlock = currentHeight
+		state.LastIndexedAt = blockTime
+		state.CanvasHeight = canvasHeight
+		state.CanvasWidth = canvasWidth
+		state.CanvasLeftBound = leftBound
+		state.CanvasUpperBound = upperBound
 		indexedBlock = state.LastIndexedBlock
 		err = indexer.Storage.UpdateIndexerState(context.Background(), state)
 		if err != nil {
